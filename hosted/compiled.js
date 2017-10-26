@@ -4,7 +4,7 @@ var canvas = void 0;
 var ctx = void 0;
 var socket = void 0;
 var hash = void 0;
-var draws = [];
+var draws = {};
 var speed = void 0;
 
 var init = function init() {
@@ -15,9 +15,13 @@ var init = function init() {
 
     socket = io.connect();
 
-    socket.on('connect', function (data) {
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    socket.on('join', function (data) {
         hash = data.userID;
         draws[hash] = data;
+        setInterval(update, 20);
     });
 
     socket.on('updateCanvas', function (data) {
@@ -28,6 +32,7 @@ var init = function init() {
 
 // Draws everything in the draw array
 var draw = function draw() {
+
     ctx.clearRect(0, 0, 500, 500);
 
     var keys = Object.keys(draws);
@@ -35,34 +40,38 @@ var draw = function draw() {
     for (var i = 0; i < keys.length; i++) {
         var square = draws[keys[i]];
 
-        ctx.fillRect(draws.x, draws.y, draws.width, draws.height);
+        ctx.fillRect(square.x, square.y, square.width, square.height);
     }
 };
 
-// Adjusts user's position based on input
 var handleKeyDown = function handleKeyDown(e) {
     var key = e.which;
 
-    var square = draws[hash];
-
-    // W 
-    if (key === 87) {
-        square.y -= speed;
+    // A 
+    if (key === 65) {
+        draws[hash].moveLeft = true;
     }
-    // A
-    else if (key === 65) {
-            square.x -= speed;
+    // D
+    else if (key === 68) {
+            draws[hash].moveRight = true;
         }
-        // S 
-        else if (key === 83) {
-                square.y += speed;
-            }
-            // D
-            else if (key === 68) {
-                    square.x += speed;
-                }
+};
 
-    socket.emit('movementUpdate', draws);
+var handleKeyUp = function handleKeyUp(e) {
+    var key = e.which;
+
+    // A 
+    if (key === 65) {
+        draws[hash].moveLeft = false;
+    }
+    // D
+    else if (key === 68) {
+            draws[hash].moveRight = false;
+        }
+};
+
+var update = function update() {
+    socket.emit('updateMovement', draws[hash]);
 };
 
 window.onload = init;

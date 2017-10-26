@@ -2,7 +2,7 @@ let canvas;
 let ctx;
 let socket;
 let hash;
-let draws = [];
+let draws = {};
 let speed;
 
 const init = () => {
@@ -13,9 +13,13 @@ const init = () => {
     
     socket = io.connect();
     
-    socket.on('connect', (data) => {
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);    
+    
+    socket.on('join', (data) => {
         hash = data.userID;
         draws[hash] = data;
+        setInterval(update, 20);
     });
     
     socket.on('updateCanvas', (data) => {
@@ -26,6 +30,7 @@ const init = () => {
 
 // Draws everything in the draw array
 const draw = () => {
+    
     ctx.clearRect(0, 0, 500, 500);
     
     let keys = Object.keys(draws);
@@ -33,34 +38,39 @@ const draw = () => {
     for(let i = 0; i < keys.length; i++){
         const square = draws[keys[i]];
         
-        ctx.fillRect(draws.x, draws.y, draws.width, draws.height);
+        ctx.fillRect(square.x, square.y, square.width, square.height);
     }
 }
 
-// Adjusts user's position based on input
 const handleKeyDown = (e) => {
     let key = e.which;
     
-    let square = draws[hash];
-    
-    // W 
-    if(key === 87) {
-        square.y -= speed;
-    }
-    // A
-    else if(key === 65) {
-        square.x -= speed;
-    }
-    // S 
-    else if(key === 83) {
-        square.y += speed;
+    // A 
+    if(key === 65) {
+        draws[hash].moveLeft = true;
     }
     // D
     else if(key === 68) {
-        square.x += speed;
+        draws[hash].moveRight = true;
     }
-    
-    socket.emit('movementUpdate', draws);
 }
+
+const handleKeyUp = (e) => {
+    let key = e.which;
+    
+    // A 
+    if(key === 65) {
+        draws[hash].moveLeft = false;
+    }
+    // D
+    else if(key === 68) {
+        draws[hash].moveRight = false;
+    }
+}
+
+const update = () => {
+    socket.emit('updateMovement', draws[hash]);
+}
+
 
 window.onload = init;
