@@ -42,6 +42,7 @@ const draw = () => {
     }
 }
 
+// Keydown event
 const handleKeyDown = (e) => {
     let key = e.which;
     
@@ -53,8 +54,14 @@ const handleKeyDown = (e) => {
     else if(key === 68) {
         draws[hash].moveRight = true;
     }
+    
+    // space
+    if (key === 32){
+        draws[hash].y -= 200;
+    }
 }
 
+// Keyup event
 const handleKeyUp = (e) => {
     let key = e.which;
     

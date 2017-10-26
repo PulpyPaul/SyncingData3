@@ -44,6 +44,7 @@ var draw = function draw() {
     }
 };
 
+// Keydown event
 var handleKeyDown = function handleKeyDown(e) {
     var key = e.which;
 
@@ -55,8 +56,14 @@ var handleKeyDown = function handleKeyDown(e) {
     else if (key === 68) {
             draws[hash].moveRight = true;
         }
+
+    // space
+    if (key === 32) {
+        draws[hash].y -= 200;
+    }
 };
 
+// Keyup event
 var handleKeyUp = function handleKeyUp(e) {
     var key = e.which;
 

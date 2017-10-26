@@ -9,15 +9,18 @@ const drawData = {};
 
 const updatePosition = (obj) => {
   character = obj;
-
+  
+  // gravity effect
   character.y += 5;
 
+  // moves the character left and right
   if (character.moveLeft === true) {
     character.x -= 5;
   } else if (character.moveRight === true) {
     character.x += 5;
   }
 
+  // keeps the character inside the canvas
   if (character.x + character.width > 500) {
     character.x = 500 - character.width;
   }
@@ -50,7 +53,7 @@ const setupSockets = (ioInstance) => {
     const hash = xxh.h32(`${socket.id}${new Date().getTime()}`, 0xCAFEBABE).toString(16);
 
     // user's square object
-    square = { x: 0, y: 0, width: 50, height: 50, userID: hash, moveLeft: false, moveRight: false };
+    square = { x: 0, y: 0, width: 50, height: 50, userID: hash, moveLeft: false, moveRight: false};
 
     io.sockets.in('room1').emit('join', square);
 
